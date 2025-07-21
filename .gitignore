@@ -1,0 +1,24 @@
+# Auto-generated files
+.DS_Store
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Credentials
+.env
+
+# Virtual environments
+.venv
+.ropeproject
+
+# Scratch notebooks
+notebooks
+
+# Data
+data
+
+# Large Wikipedia dump files
+*.xml.bz2
