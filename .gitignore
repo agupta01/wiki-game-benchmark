@@ -13,12 +13,21 @@ wheels/
 # Virtual environments
 .venv
 .ropeproject
+node_modules
 
 # Scratch notebooks
 notebooks
+.ipynb_checkpoints
 
 # Data
 data
 
 # Large Wikipedia dump files
 *.xml.bz2
+wiki_[0-9][0-9]
+*.lmdb
+data.sample
+2025-06-01
+
+# AI
+.claude

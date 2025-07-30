@@ -4,7 +4,19 @@ version = "0.1.0"
 description = "Benchmarks and Optimization for LLMs playing the Wikipedia Game"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["dspy", "pydantic", "python-dotenv", "pandas", "wikiextractor"]
+dependencies = [
+    "dspy",
+    "pydantic",
+    "python-dotenv",
+    "pandas",
+    "wikiextractor",
+    "uvicorn>=0.35.0",
+    "fastapi[standard-no-fastapi-cloud-cli]>=0.116.1",
+    "ollama>=0.5.1",
+    "lmdb",
+    "tqdm",
+    "pytest",
+]
 
 [tool.pyright]
 venvPath = "."
