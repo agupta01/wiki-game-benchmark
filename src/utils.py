@@ -5,6 +5,18 @@ from urllib.parse import unquote
 import pandas as pd
 
 
+class ArticleNotFound(RuntimeError):
+    """Exception raised when an article cannot be found or retrieved."""
+
+    pass
+
+
+class NotImplementedWarning(Warning):
+    """Warning raised when a method is not implemented."""
+
+    pass
+
+
 def get_links_for_entry(content: str) -> list[str]:
     """Takes a page's content and returns a list of links in the content."""
     link_list = re.findall(

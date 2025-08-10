@@ -1,4 +1,24 @@
+from enum import Enum, EnumMeta
+
 from pydantic import BaseModel
+
+
+class StrEnumMeta(EnumMeta):
+    def __contains__(cls, item):
+        return any(item == member.value for member in cls)
+
+
+class Provider(str, Enum, metaclass=StrEnumMeta):
+    OLLAMA = "ollama"
+    OPENROUTER = "openrouter"
+
+
+class OpenRouterSupportedModel(str, Enum, metaclass=StrEnumMeta):
+    QWEN3_DEEPSEEK_8B = "deepseek/deepseek-r1-0528-qwen3-8b:free"
+
+
+class OllamaSupportedModel(str, Enum, metaclass=StrEnumMeta):
+    QWEN3_0_6B = "qwen3:0.6b"
 
 
 class Page(BaseModel):
@@ -14,8 +34,3 @@ class StepInput(BaseModel):
 
 class StepOutput(BaseModel):
     selected_link: str
-
-
-def construct_page(title: str, content: str) -> Page:
-    """Extracts the links from the page to construct a page object."""
-    return Page(title="", content="", links=[])
