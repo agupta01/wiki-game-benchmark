@@ -8,9 +8,11 @@ import App from './App.tsx'
 
 const queryClient = new QueryClient()
 
+const basename = import.meta.env.PROD ? '/wiki-game-benchmark' : ''
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <ChakraProvider>
         <QueryClientProvider client={queryClient}>
           <App />
