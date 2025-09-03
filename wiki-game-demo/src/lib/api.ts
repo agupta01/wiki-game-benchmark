@@ -1,4 +1,5 @@
-export const API_BASE = 'https://wiki-game-dev--api.modal.run'
+const PROD_BASE = 'https://wiki-game-dev--api.modal.run'
+export const API_BASE = import.meta.env.DEV ? '/api' : PROD_BASE
 
 export type Move = {
 	article: string
