@@ -12,6 +12,7 @@ class Provider(str, Enum, metaclass=StrEnumMeta):
     OLLAMA = "ollama"
     OPENROUTER = "openrouter"
     CEREBRAS = "cerebras"
+    GROQ = "groq"
 
 
 class SupportedModel(str, Enum, metaclass=StrEnumMeta):
@@ -28,6 +29,11 @@ class OllamaSupportedModel(SupportedModel):
 
 class CerebrasSupportedModel(SupportedModel):
     QWEN3_32B = "qwen-3-32b"
+
+
+class GroqSupportedModel(SupportedModel):
+    QWEN3_32B = "qwen/qwen3-32b"
+    GPT_OSS_20B = "openai/gpt-oss-20b"
 
 
 class Page(BaseModel):

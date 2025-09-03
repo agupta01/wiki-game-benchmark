@@ -195,6 +195,19 @@ class CerebrasClient(BaseModelClient):
         return model_name in models.CerebrasSupportedModel
 
 
+class GroqClient(BaseModelClient):
+    def __init__(self, model_name: str):
+        super().__init__(models.Provider.GROQ, model_name)
+        self.lm = dspy.LM(
+            f"groq/{self.model_name}",
+            api_key=self.api_key,
+            temperature=self.temperature,
+        )
+
+    def _is_supported_model(self, model_name: str) -> bool:
+        return model_name in models.GroqSupportedModel
+
+
 def create_client(provider: str, model: str) -> BaseModelClient:
     """Factory function to create the appropriate client based on provider type.
 
@@ -214,5 +227,7 @@ def create_client(provider: str, model: str) -> BaseModelClient:
         return OpenRouterClient(model)
     elif provider == models.Provider.CEREBRAS:
         return CerebrasClient(model)
+    elif provider == models.Provider.GROQ:
+        return GroqClient(model)
     else:
         raise ValueError(f"Unsupported provider: {provider}")
