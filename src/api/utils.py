@@ -5,7 +5,8 @@ from typing import Literal
 import modal
 from dotenv import load_dotenv
 
-APP_NAME = "wiki-game"
+API_APP_NAME = "wiki-game"
+WORKER_APP_NAME = "wiki-worker"
 
 
 class CustomFormatter(logging.Formatter):
@@ -16,12 +17,12 @@ class CustomFormatter(logging.Formatter):
         return t
 
 
-# Setup logging
-handler = logging.StreamHandler()
-formatter = CustomFormatter(fmt="%(asctime)s - %(name)s:%(levelname)s: %(message)s")
-handler.setFormatter(formatter)
-logging.basicConfig(level=logging.INFO, handlers=[handler])
-logger = logging.getLogger(APP_NAME)
+def setup_logger(app_name: str) -> logging.Logger:
+    handler = logging.StreamHandler()
+    formatter = CustomFormatter(fmt="%(asctime)s - %(name)s:%(levelname)s: %(message)s")
+    handler.setFormatter(formatter)
+    logging.basicConfig(level=logging.INFO, handlers=[handler])
+    return logging.getLogger(app_name)
 
 
 def get_scope() -> Literal["local", "remote"]:
@@ -30,7 +31,9 @@ def get_scope() -> Literal["local", "remote"]:
 
 
 app_image = modal.Image.debian_slim().uv_sync().add_local_python_source("src")
-app = modal.App(name=APP_NAME, image=app_image)
+cloudflare_secret = modal.Secret.from_name(
+    "r2-secret", required_keys=["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"]
+)
 
 game_store = modal.Dict.from_name("game-store", create_if_missing=True)
 
