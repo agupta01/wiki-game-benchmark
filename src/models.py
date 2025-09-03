@@ -13,11 +13,15 @@ class Provider(str, Enum, metaclass=StrEnumMeta):
     OPENROUTER = "openrouter"
 
 
-class OpenRouterSupportedModel(str, Enum, metaclass=StrEnumMeta):
+class SupportedModel(str, Enum, metaclass=StrEnumMeta):
+    pass
+
+
+class OpenRouterSupportedModel(SupportedModel):
     QWEN3_DEEPSEEK_8B = "deepseek/deepseek-r1-0528-qwen3-8b:free"
 
 
-class OllamaSupportedModel(str, Enum, metaclass=StrEnumMeta):
+class OllamaSupportedModel(SupportedModel):
     QWEN3_0_6B = "qwen3:0.6b"
 
 

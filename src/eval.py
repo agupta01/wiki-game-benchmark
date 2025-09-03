@@ -96,7 +96,11 @@ def run_one_game(
     history = [curr_article]
     for step in range(max_steps):
         curr_article = get_next_article(
-            curr_article, goal_page_title, invoke, wiki_data=db, ctrl_f=ctrl_f
+            curr_article,
+            goal_page_title,
+            invoke,
+            wiki_data=db,
+            ctrl_f=ctrl_f,
         )
         if curr_article.title == goal_page_title:
             print("Done!")
