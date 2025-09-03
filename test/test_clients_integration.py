@@ -25,6 +25,7 @@ class TestOllamaClientIntegration(unittest.TestCase):
 
         # Create test page as shown in the example
         page = Page(
+            url="",
             title="Abraham Lincoln",
             content="Some text about this president of the United States",
             links=["Apples", "United States of America"],
@@ -61,6 +62,7 @@ class TestOpenRouterClientIntegration(unittest.TestCase):
 
         # Create test page as shown in the example
         page = Page(
+            url="",
             title="Abraham Lincoln",
             content="Some text about this president of the United States",
             links=["Apples", "United States of America"],

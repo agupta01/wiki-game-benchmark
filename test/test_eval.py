@@ -55,6 +55,7 @@ class TestGetNextArticle:
     def test_get_next_article_success(self):
         """Test successful retrieval of next article."""
         current_page = Page(
+            url="",
             title="Python (programming language)",
             content="Python is a high-level programming language.",
             links=["Machine Learning", "Data Science"],
@@ -79,6 +80,7 @@ class TestGetNextArticle:
     def test_get_next_article_not_found_in_index(self):
         """Test when the article returned by invoke is not found in LMDB index."""
         current_page = Page(
+            url="",
             title="Python (programming language)",
             content="Python is a high-level programming language.",
             links=["Machine Learning"],
@@ -96,6 +98,7 @@ class TestGetNextArticle:
     def test_get_next_article_file_not_found(self):
         """Test when the file path exists in index but file doesn't exist."""
         current_page = Page(
+            url="",
             title="Python (programming language)",
             content="Python is a high-level programming language.",
             links=["Machine Learning"],
@@ -116,6 +119,7 @@ class TestGetNextArticle:
     def test_get_next_article_empty_file(self):
         """Test when the wiki file exists but is empty."""
         current_page = Page(
+            url="",
             title="Python (programming language)",
             content="Python is a high-level programming language.",
             links=["Machine Learning"],
@@ -141,6 +145,7 @@ class TestGetNextArticle:
     def test_get_next_article_malformed_json(self):
         """Test when the wiki file contains malformed JSON."""
         current_page = Page(
+            url="",
             title="Python (programming language)",
             content="Python is a high-level programming language.",
             links=["Machine Learning"],
@@ -166,6 +171,7 @@ class TestGetNextArticle:
     def test_get_next_article_missing_title_field(self):
         """Test when the JSON is valid but missing required fields."""
         current_page = Page(
+            url="",
             title="Python (programming language)",
             content="Python is a high-level programming language.",
             links=["Machine Learning"],
@@ -191,6 +197,7 @@ class TestGetNextArticle:
     def test_get_next_article_invoke_returns_empty_string(self):
         """Test when invoke function returns empty string."""
         current_page = Page(
+            url="",
             title="Python (programming language)",
             content="Python is a high-level programming language.",
             links=["Machine Learning"],
@@ -205,6 +212,7 @@ class TestGetNextArticle:
     def test_get_next_article_invoke_returns_none(self):
         """Test when invoke function returns None."""
         current_page = Page(
+            url="",
             title="Python (programming language)",
             content="Python is a high-level programming language.",
             links=["Machine Learning"],
@@ -219,6 +227,7 @@ class TestGetNextArticle:
     def test_get_next_article_multiline_jsonl(self):
         """Test reading from a file with multiple JSONL entries (should read first)."""
         current_page = Page(
+            url="",
             title="Python (programming language)",
             content="Python is a high-level programming language.",
             links=["Multi Article"],

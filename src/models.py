@@ -37,6 +37,7 @@ class GroqSupportedModel(SupportedModel):
 
 
 class Page(BaseModel):
+    url: str
     title: str
     content: str
     links: list[str]

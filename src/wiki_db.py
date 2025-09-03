@@ -55,6 +55,7 @@ class WikiData:
         try:
             article_data = next(filter(lambda x: x["title"] == article_title, page_data))
             return Page(
+                url=article_data["url"],
                 title=article_data["title"],
                 content=article_data["text"],
                 links=article_data["links"],
