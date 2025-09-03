@@ -57,7 +57,7 @@ def create_game(body: CreateGameRequest):
                 # Turn on the queue processor, if not started yet
                 stats = manage_queue.get_current_stats()
                 logger.info(f"NUM RUNNERS: {stats.num_total_runners}")
-                if get_scope() != "local":
+                if manage_queue.get_current_stats().backlog < 2 and get_scope() != "local":
                     manage_queue.spawn()
             return CreateGameResponse(id=game_id), 200
     except Exception:

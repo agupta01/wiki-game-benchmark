@@ -27,7 +27,11 @@ worker_app = modal.App(name=WORKER_APP_NAME, image=app_image)
 
 
 @worker_app.function(
-    timeout=86400, max_inputs=1, max_containers=1, min_containers=0, scaledown_window=2
+    timeout=86400,
+    max_inputs=1,
+    max_containers=1,
+    min_containers=0,
+    scaledown_window=2,
 )
 def manage_queue():
     poll_until = time.time() + 5
@@ -111,7 +115,7 @@ def process_queue_item():
         if not game.is_complete and top_game_id:
             game_queue.put(top_game_id)
             # Restart manager if shut down
-            if get_scope() != "local":
+            if manage_queue.get_current_stats().backlog < 2 and get_scope() != "local":
                 manage_queue.spawn()
     except KeyError as e:
         logger.exception(e)
