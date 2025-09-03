@@ -108,7 +108,7 @@ def process_queue_item():
         )
 
         # Update game with next step
-        game.add_move(next_article.title)
+        game.add_move(article=next_article.title, url=next_article.url)
         game_store[top_game_id] = game.model_dump_json()
 
         # If not complete, push back to queue

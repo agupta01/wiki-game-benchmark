@@ -10,6 +10,7 @@ class Move(BaseModel):
 
     article: str
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    url: str = Field(default="")
 
 
 class Game(BaseModel):
@@ -28,7 +29,7 @@ class Game(BaseModel):
         """Get the article from the last move, if any."""
         return self.moves[-1].article if self.moves else None
 
-    def add_move(self, article: str) -> bool:
+    def add_move(self, article: str, url: str = "") -> bool:
         """
         Add a move to the game. Returns True if move was added, False if duplicate or if game is complete.
         Implements idempotency check.
@@ -36,7 +37,7 @@ class Game(BaseModel):
         if self.last_move_article == article or self.is_complete:
             return False  # Duplicate move, don't add
 
-        self.moves.append(Move(article=article))
+        self.moves.append(Move(article=article, url=url))
         self.current_article = article
 
         if article == self.end_article:
@@ -51,7 +52,7 @@ class Game(BaseModel):
             "startArticle": self.start_article,
             "endArticle": self.end_article,
             "moves": [
-                {"article": move.article, "timestamp": move.timestamp.isoformat()}
+                {"article": move.article, "timestamp": move.timestamp.isoformat(), "url": move.url}
                 for move in self.moves
             ],
             "currentArticle": self.current_article,
@@ -72,3 +73,4 @@ class CreateGameResponse(BaseModel):
 
 class UpdateGameRequest(BaseModel):
     article: str
+    url: Optional[str]

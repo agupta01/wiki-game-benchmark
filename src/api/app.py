@@ -7,8 +7,19 @@ from flask import Flask
 from flask_pydantic import validate
 
 from src.api.models import CreateGameRequest, CreateGameResponse, Game, UpdateGameRequest
-from src.api.utils import API_APP_NAME, app_image, game_queue, game_store, get_scope, setup_logger
+from src.api.utils import (
+    API_APP_NAME,
+    app_image,
+    cloudflare_secret,
+    game_queue,
+    game_store,
+    get_scope,
+    setup_logger,
+)
 from src.api.worker import manage_queue, worker_app
+from src.eval import path_transformer as local_path_transformer
+from src.utils import ArticleNotFound
+from src.wiki_db import WikiData
 
 load_dotenv()
 
@@ -49,7 +60,21 @@ def create_game(body: CreateGameRequest):
                 end_article=body.end_article,
                 player=body.player,
             )
-            game.add_move(article=body.start_article)
+
+            # Get url for starting article
+            index_path = "./index.lmdb" if get_scope() == "local" else "/data/2025-06-01/index.lmdb"
+            path_transformer = (
+                local_path_transformer
+                if get_scope() == "local"
+                else (lambda x: x.replace("..", "/data"))
+            )
+
+            db = WikiData(index_path, path_transformer)
+
+            start_page = db.get_page(body.start_article)
+            db.get_page(body.end_article)
+
+            game.add_move(article=body.start_article, url=start_page.url)
             game_store[game_id] = game.model_dump_json()
             if body.player == "ai":
                 logger.info("Adding game to processing queue")
@@ -60,7 +85,11 @@ def create_game(body: CreateGameRequest):
                 if manage_queue.get_current_stats().backlog < 2 and get_scope() != "local":
                     manage_queue.spawn()
             return CreateGameResponse(id=game_id), 200
-    except Exception:
+    except ArticleNotFound as e:
+        logger.exception(e)
+        return "Start or end article not found in DB. Try different articles", 400
+    except Exception as e:
+        logger.exception(e)
         return "Internal error", 500
 
 
@@ -70,7 +99,7 @@ def update_game(game_id, body: UpdateGameRequest):
     game_id = str(game_id)
     try:
         game: Game = Game(**json.loads(game_store[game_id]))
-        game.add_move(article=body.article)
+        game.add_move(article=body.article, url=body.url if body.url else "")
         game_store[game_id] = game.model_dump_json()
         return game.to_api_response(), 200
     except KeyError:
@@ -89,7 +118,16 @@ def delete_game(game_id):
         return "Internal error", 500
 
 
-@app.function()
+@app.function(
+    volumes={
+        "/data": modal.CloudBucketMount(
+            bucket_name="wiki-data",
+            bucket_endpoint_url="https://684be30d0e8fbd7eb2bab9bb2823cd14.r2.cloudflarestorage.com",
+            secret=cloudflare_secret,
+            read_only=True,
+        )
+    }
+)
 # @modal.concurrent(max_inputs=10)
 @modal.wsgi_app(label="api")
 def flask_app():
