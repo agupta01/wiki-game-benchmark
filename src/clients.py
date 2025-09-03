@@ -182,6 +182,19 @@ class OpenRouterClient(BaseModelClient):
         return model_name in models.OpenRouterSupportedModel
 
 
+class CerebrasClient(BaseModelClient):
+    def __init__(self, model_name: str):
+        super().__init__(models.Provider.CEREBRAS, model_name)
+        self.lm = dspy.LM(
+            f"cerebras/{self.model_name}",
+            api_key=self.api_key,
+            temperature=self.temperature,
+        )
+
+    def _is_supported_model(self, model_name: str) -> bool:
+        return model_name in models.CerebrasSupportedModel
+
+
 def create_client(provider: str, model: str) -> BaseModelClient:
     """Factory function to create the appropriate client based on provider type.
 
@@ -199,5 +212,7 @@ def create_client(provider: str, model: str) -> BaseModelClient:
         return OllamaClient(model)
     elif provider == models.Provider.OPENROUTER:
         return OpenRouterClient(model)
+    elif provider == models.Provider.CEREBRAS:
+        return CerebrasClient(model)
     else:
         raise ValueError(f"Unsupported provider: {provider}")

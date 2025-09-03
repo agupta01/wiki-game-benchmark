@@ -1,16 +1,26 @@
 import logging
 import os
-from collections import deque
-from typing import Literal, Tuple
+from typing import Literal
 
 import modal
 from dotenv import load_dotenv
 
-from src.models import OllamaSupportedModel, OpenRouterSupportedModel, Provider, SupportedModel
-
 APP_NAME = "wiki-game"
 
-logging.basicConfig(level=logging.INFO)
+
+class CustomFormatter(logging.Formatter):
+    def formatTime(self, record, datefmt=None):
+        # Format: MM/DD HH:MM:SS.sss
+        ct = self.converter(record.created)
+        t = f"{ct.tm_mon:02d}/{ct.tm_mday:02d} {ct.tm_hour:02d}:{ct.tm_min:02d}:{ct.tm_sec:02d}.{int(record.msecs):03d}"
+        return t
+
+
+# Setup logging
+handler = logging.StreamHandler()
+formatter = CustomFormatter(fmt="%(asctime)s - %(name)s:%(levelname)s: %(message)s")
+handler.setFormatter(formatter)
+logging.basicConfig(level=logging.INFO, handlers=[handler])
 logger = logging.getLogger(APP_NAME)
 
 
@@ -22,9 +32,7 @@ def get_scope() -> Literal["local", "remote"]:
 app_image = modal.Image.debian_slim().uv_sync().add_local_python_source("src")
 app = modal.App(name=APP_NAME, image=app_image)
 
-game_store = (
-    modal.Dict.from_name("game-store", create_if_missing=True)
-)
+game_store = modal.Dict.from_name("game-store", create_if_missing=True)
 
 
 class GameQueue:
@@ -52,16 +60,4 @@ class GameQueue:
             return self._queue.append(item)
 
 
-game_queue = GameQueue(scope=get_scope())
-
-
-def get_model_config() -> Tuple[Provider, SupportedModel]:
-    load_dotenv()
-    if get_scope() == "local":
-        return Provider.OLLAMA, OllamaSupportedModel(
-            os.getenv("OLLAMA_MODEL", OllamaSupportedModel.QWEN3_0_6B)
-        )
-    else:
-        return Provider.OPENROUTER, OpenRouterSupportedModel(
-            os.getenv("OPENROUTER_MODEL", OpenRouterSupportedModel.QWEN3_DEEPSEEK_8B)
-        )
+game_queue = modal.Queue.from_name("game-queue", create_if_missing=True)

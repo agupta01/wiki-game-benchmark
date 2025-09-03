@@ -1,13 +1,15 @@
-from uuid import uuid4
 import json
+from uuid import uuid4
 
 import modal
+from dotenv import load_dotenv
 from flask import Flask
 from flask_pydantic import validate
-from markupsafe import escape
 
 from src.api.models import CreateGameRequest, CreateGameResponse, Game, UpdateGameRequest
-from src.api.utils import app, game_store, logger
+from src.api.utils import app, game_queue, game_store, logger
+
+load_dotenv()
 
 server = Flask(__name__)
 
@@ -16,22 +18,19 @@ server = Flask(__name__)
 def get_game(game_id):
     game_id = str(game_id)
     try:
-        game_json = game_store[game_id]
         game: Game = Game(**json.loads(game_store[game_id]))
         return game.to_api_response(), 200
     except KeyError as e:
-        logger.info(f"{game_store.info()}, {list(game_store.items())}")
         logger.exception(e)
         return f"Game {game_id} not found", 404
     except Exception as e:
+        logger.exception(e)
         return f"Internal error: {e}", 500
 
 
 @server.post("/game")
 @validate()
 def create_game(body: CreateGameRequest):
-    if body.player != "ai":
-        return "Wrong player", 400
     try:
         game_id = str(uuid4())
         server.logger.debug(game_id)
@@ -44,6 +43,9 @@ def create_game(body: CreateGameRequest):
                 end_article=body.end_article,
                 player=body.player,
             ).model_dump_json()
+            if body.player == "ai":
+                logger.info("Adding game to processing queue")
+                game_queue.put(game_id)
             return CreateGameResponse(id=game_id), 200
     except Exception:
         return "Internal error", 500
@@ -66,6 +68,7 @@ def update_game(game_id, body: UpdateGameRequest):
 
 @app.function()
 # @modal.concurrent(max_inputs=10)
-@modal.wsgi_app()
+@modal.wsgi_app(label="api")
 def flask_app():
+    load_dotenv()
     return server

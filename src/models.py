@@ -11,6 +11,7 @@ class StrEnumMeta(EnumMeta):
 class Provider(str, Enum, metaclass=StrEnumMeta):
     OLLAMA = "ollama"
     OPENROUTER = "openrouter"
+    CEREBRAS = "cerebras"
 
 
 class SupportedModel(str, Enum, metaclass=StrEnumMeta):
@@ -23,6 +24,10 @@ class OpenRouterSupportedModel(SupportedModel):
 
 class OllamaSupportedModel(SupportedModel):
     QWEN3_0_6B = "qwen3:0.6b"
+
+
+class CerebrasSupportedModel(SupportedModel):
+    QWEN3_32B = "qwen-3-32b"
 
 
 class Page(BaseModel):
