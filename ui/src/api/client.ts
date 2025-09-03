@@ -1,4 +1,6 @@
-const API_BASE_URL = '/api'
+const API_BASE_URL = import.meta.env.PROD 
+  ? 'https://wiki-game-dev--api.modal.run' 
+  : '/api'
 
 export interface GameMove {
   article: string

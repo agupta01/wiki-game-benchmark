@@ -15,7 +15,6 @@ import {
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
-import type { GameState } from '../api/client'
 
 export function GamePlay() {
   const { gameId } = useParams<{ gameId: string }>()
@@ -34,8 +33,8 @@ export function GamePlay() {
   const { data: gameState, isLoading, error } = useQuery({
     queryKey: ['game', gameId],
     queryFn: () => api.getGameState(gameId),
-    refetchInterval: (data) => {
-      return data?.isComplete ? false : 10000
+    refetchInterval: (query) => {
+      return query.state.data?.isComplete ? false : 10000
     },
     refetchIntervalInBackground: true,
   })
