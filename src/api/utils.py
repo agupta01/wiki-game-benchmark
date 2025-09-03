@@ -34,30 +34,4 @@ app = modal.App(name=APP_NAME, image=app_image)
 
 game_store = modal.Dict.from_name("game-store", create_if_missing=True)
 
-
-class GameQueue:
-    def __init__(self, scope: str):
-        super().__init__()
-        if scope == "local":
-            self._queue = []
-            self.scope = scope
-        elif scope == "remote":
-            self._queue = modal.Queue.from_name("game-queue", create_if_missing=True)
-            self.scope = scope
-        else:
-            raise TypeError(f"Scope {scope} not supported")
-
-    def pop(self):
-        if self.scope == "remote":
-            return self._queue.get(block=False)
-        else:
-            return self._queue.pop(0)
-
-    def append(self, item: str):
-        if self.scope == "remote":
-            return self._queue.put(item)
-        else:
-            return self._queue.append(item)
-
-
 game_queue = modal.Queue.from_name("game-queue", create_if_missing=True)
