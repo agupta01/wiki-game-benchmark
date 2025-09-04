@@ -75,9 +75,14 @@ class WikiData:
         if capitalized != article:
             fallbacks.append(capitalized)
 
+        # Title case
+        title_cased = article.title()
+        if title_cased != article and title_cased != capitalized:
+            fallbacks.append(title_cased)
+
         # Lowercase version
         lowercase = article.lower()
-        if lowercase != article and lowercase != capitalized:
+        if lowercase != article and lowercase != title_cased:
             fallbacks.append(lowercase)
 
         # Uppercase version
