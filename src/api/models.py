@@ -40,7 +40,7 @@ class Game(BaseModel):
         self.moves.append(Move(article=article, url=url))
         self.current_article = article
 
-        if article == self.end_article:
+        if article.lower() == self.end_article.lower():
             self.is_complete = True
 
         return True
