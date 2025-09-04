@@ -83,10 +83,6 @@ export function GameStart() {
     },
   });
 
-  const capitalizeFirstLetter = (str: string) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!startArticle.trim() || !endArticle.trim()) {
@@ -102,8 +98,8 @@ export function GameStart() {
 
     createGameMutation.mutate({
       player: "ai",
-      startArticle: capitalizeFirstLetter(startArticle.trim()),
-      endArticle: capitalizeFirstLetter(endArticle.trim()),
+      startArticle: startArticle.trim(),
+      endArticle: endArticle.trim(),
     });
   };
 

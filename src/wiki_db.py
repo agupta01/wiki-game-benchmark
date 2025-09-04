@@ -36,12 +36,56 @@ class WikiData:
         """
         try:
             with self.env.begin() as txn:
+                # Try exact match first
                 location_bytes = txn.get(article.encode("utf-8"))
-                if location_bytes is None:
-                    raise Exception
-                return location_bytes.decode("utf-8")
+                if location_bytes is not None:
+                    return location_bytes.decode("utf-8")
+
+                # Try fallback variations if exact match fails
+                fallback_variations = self._get_case_fallbacks(article)
+
+                for variation in fallback_variations:
+                    location_bytes = txn.get(variation.encode("utf-8"))
+                    if location_bytes is not None:
+                        return location_bytes.decode("utf-8")
+
+                # No match found in any variation
+                raise Exception
         except Exception:
             raise ArticleNotFound(f"Article '{article}' not found in DB.")
+
+    def _get_case_fallbacks(self, article: str) -> list[str]:
+        """Generate case fallback variations for an article name.
+
+        Args:
+            article: The original article name
+
+        Returns:
+            List of case variations to try, in priority order
+        """
+        if not article:
+            return []
+
+        fallbacks = []
+
+        # Capitalized first letter (most common Wikipedia format)
+        capitalized = (
+            article[0].upper() + article[1:].lower() if len(article) > 1 else article.upper()
+        )
+        if capitalized != article:
+            fallbacks.append(capitalized)
+
+        # Lowercase version
+        lowercase = article.lower()
+        if lowercase != article and lowercase != capitalized:
+            fallbacks.append(lowercase)
+
+        # Uppercase version
+        uppercase = article.upper()
+        if uppercase != article and uppercase != capitalized and uppercase != lowercase:
+            fallbacks.append(uppercase)
+
+        return fallbacks
 
     def get_page(self, article_title: str) -> Page:
         """Fetches a page object from LMDB. Throws an ArticleNotFoundError if the article isn't in DB."""
