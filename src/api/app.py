@@ -4,6 +4,7 @@ from uuid import uuid4
 import modal
 from dotenv import load_dotenv
 from flask import Flask
+from flask_cors import CORS
 from flask_pydantic import validate
 
 from src.api.models import CreateGameRequest, CreateGameResponse, Game, UpdateGameRequest
@@ -29,6 +30,17 @@ app = modal.App(name=API_APP_NAME, image=app_image)
 app.include(worker_app)
 
 server = Flask(__name__)
+
+# Configure CORS
+CORS(
+    server,
+    origins=[
+        "https://www.arunavgupta.com",
+        "https://agupta01.github.io",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+)
 
 
 @server.get("/game/<uuid:game_id>")
