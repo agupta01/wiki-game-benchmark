@@ -83,6 +83,10 @@ export function GameStart() {
     },
   });
 
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!startArticle.trim() || !endArticle.trim()) {
@@ -98,8 +102,8 @@ export function GameStart() {
 
     createGameMutation.mutate({
       player: "ai",
-      startArticle: startArticle.trim(),
-      endArticle: endArticle.trim(),
+      startArticle: capitalizeFirstLetter(startArticle.trim()),
+      endArticle: capitalizeFirstLetter(endArticle.trim()),
     });
   };
 
@@ -109,7 +113,7 @@ export function GameStart() {
         <VStack spacing={8} w="full">
           <VStack spacing={4} textAlign="center">
             <Heading size="xl" color="gray.800">
-              Wikipedia Game AI
+              Wikipedia Game
             </Heading>
             <Text fontSize="lg" color="gray.600" maxW="lg">
               Watch GPT OSS navigate from one Wikipedia article to another using
