@@ -22,11 +22,13 @@ class TestWikiData:
 
             # Test the WikiData class
             wiki_data = WikiData(db_path)
-            location = wiki_data.get_article_location("Python")
+            location, article = wiki_data.get_article_location("Python")
             assert location == "2025-06-01/AA/wiki_01"
+            assert article == "Python"
 
-            location = wiki_data.get_article_location("Machine Learning")
+            location, article = wiki_data.get_article_location("Machine Learning")
             assert location == "2025-06-01/ML/wiki_42"
+            assert article == "Machine Learning"
 
     def test_get_article_location_nonexistent_article(self):
         """Test getting location for a non-existent article."""
@@ -57,15 +59,18 @@ class TestWikiData:
             wiki_data = WikiData(db_path)
 
             # Exact match should work
-            location = wiki_data.get_article_location("Python")
+            location, article = wiki_data.get_article_location("Python")
             assert location == "2025-06-01/AA/wiki_01"
+            assert article == "Python"
 
             # Case variations should now work via fallback
-            location = wiki_data.get_article_location("python")
+            location, article = wiki_data.get_article_location("python")
             assert location == "2025-06-01/AA/wiki_01"
+            assert article == "Python" # The variation that is actually in the DB
 
-            location = wiki_data.get_article_location("PYTHON")
+            location, article = wiki_data.get_article_location("PYTHON")
             assert location == "2025-06-01/AA/wiki_01"
+            assert article == "Python" # The variation that is actually in the DB
 
     def test_get_article_location_unicode_handling(self):
         """Test handling of Unicode characters in article names."""
@@ -81,11 +86,13 @@ class TestWikiData:
 
             wiki_data = WikiData(db_path)
 
-            location = wiki_data.get_article_location("Café")
+            location, article = wiki_data.get_article_location("Café")
             assert location == "2025-06-01/CC/wiki_15"
+            assert article == "Café"
 
-            location = wiki_data.get_article_location("北京")
+            location, article = wiki_data.get_article_location("北京")
             assert location == "2025-06-01/ZH/wiki_88"
+            assert article == "北京"
 
     def test_init_with_nonexistent_db(self):
         """Test initialization with a non-existent database path."""
@@ -116,11 +123,13 @@ class TestWikiData:
             wiki_data = WikiData(db_path)
 
             # Multiple calls should work without issues
-            location1 = wiki_data.get_article_location("Test Article")
-            location2 = wiki_data.get_article_location("Test Article")
+            location1, article1 = wiki_data.get_article_location("Test Article")
+            location2, article2 = wiki_data.get_article_location("Test Article")
 
             assert location1 == "2025-06-01/TT/wiki_99"
+            assert article1 == "Test Article"
             assert location2 == "2025-06-01/TT/wiki_99"
+            assert article2 == "Test Article"
 
             from src.utils import ArticleNotFound
 
@@ -157,11 +166,13 @@ class TestWikiData:
             wiki_data = WikiData(db_path)
 
             # Exact whitespace matches should work
-            location = wiki_data.get_article_location("   ")
+            location, article = wiki_data.get_article_location("   ")
             assert location == "2025-06-01/WS/wiki_01"
+            assert article == "   "
 
-            location = wiki_data.get_article_location("\t\n")
+            location, article = wiki_data.get_article_location("\t\n")
             assert location == "2025-06-01/WS/wiki_02"
+            assert article == "\t\n"
 
             # Different whitespace should not match
             from src.utils import ArticleNotFound
@@ -184,12 +195,14 @@ class TestWikiData:
             wiki_data = WikiData(db_path)
 
             # Lowercase should find capitalized version
-            location = wiki_data.get_article_location("python")
+            location, article = wiki_data.get_article_location("python")
             assert location == "2025-06-01/PY/wiki_01"
+            assert article == "Python"
 
             # Mixed case should find capitalized version
-            location = wiki_data.get_article_location("machine learning")
+            location, article = wiki_data.get_article_location("machine learning")
             assert location == "2025-06-01/ML/wiki_02"
+            assert article == "Machine learning"
 
     def test_case_fallback_lowercase(self):
         """Test fallback to lowercase when exact match and capitalized fail."""
@@ -206,12 +219,14 @@ class TestWikiData:
             wiki_data = WikiData(db_path)
 
             # Uppercase should find lowercase version
-            location = wiki_data.get_article_location("JAVASCRIPT")
+            location, article = wiki_data.get_article_location("JAVASCRIPT")
             assert location == "2025-06-01/JS/wiki_01"
+            assert article == "javascript"
 
             # Title case should find lowercase version
-            location = wiki_data.get_article_location("Html Css")
+            location, article = wiki_data.get_article_location("Html Css")
             assert location == "2025-06-01/WEB/wiki_02"
+            assert article == "html css"
 
     def test_case_fallback_uppercase(self):
         """Test fallback to uppercase when other cases fail."""
@@ -228,12 +243,14 @@ class TestWikiData:
             wiki_data = WikiData(db_path)
 
             # Lowercase should find uppercase version
-            location = wiki_data.get_article_location("nasa")
+            location, article = wiki_data.get_article_location("nasa")
             assert location == "2025-06-01/SPACE/wiki_01"
+            assert article == "NASA"
 
             # Mixed case should find uppercase version
-            location = wiki_data.get_article_location("fbi cia")
+            location, article = wiki_data.get_article_location("fbi cia")
             assert location == "2025-06-01/GOV/wiki_02"
+            assert article == "FBI CIA"
 
     def test_case_fallback_priority_order(self):
         """Test that fallbacks are tried in the correct priority order."""
@@ -254,18 +271,21 @@ class TestWikiData:
             wiki_data = WikiData(db_path)
 
             # When searching "python", should prefer "Python" (capitalized) over "python" (lowercase)
-            location = wiki_data.get_article_location("python")
+            location, article = wiki_data.get_article_location("python")
             assert location == "2025-06-01/PY/lowercase"  # Exact match wins
+            assert article == "python"
 
             # When searching "PYTHON", should prefer "Python" (capitalized) over "python" (lowercase)
-            location = wiki_data.get_article_location("PYTHON")
+            location, article = wiki_data.get_article_location("PYTHON")
             assert location == "2025-06-01/PY/capitalized"  # Capitalized fallback wins
+            assert article == "Python"
 
             # When searching "Java", should get exact match if it exists
             # But since "Java" doesn't exist, should get capitalized fallback priority
-            location = wiki_data.get_article_location("Java")
+            location, article = wiki_data.get_article_location("Java")
             # Should fall back to lowercase since no exact "Java" or "java" -> "JAVA" priority
             assert location == "2025-06-01/JAVA/lowercase"
+            assert article == "java"
 
     def test_case_fallback_single_character(self):
         """Test case fallback with single character articles."""
@@ -281,12 +301,14 @@ class TestWikiData:
             wiki_data = WikiData(db_path)
 
             # Lowercase should find uppercase
-            location = wiki_data.get_article_location("a")
+            location, article = wiki_data.get_article_location("a")
             assert location == "2025-06-01/LETTER/wiki_A"
+            assert article == "A"
 
             # Uppercase should find lowercase
-            location = wiki_data.get_article_location("X")
+            location, article = wiki_data.get_article_location("X")
             assert location == "2025-06-01/LETTER/wiki_x"
+            assert article == "x"
 
     def test_case_fallback_no_match_found(self):
         """Test that ArticleNotFound is raised when no case variations exist."""
@@ -321,8 +343,10 @@ class TestWikiData:
             wiki_data = WikiData(db_path)
 
             # Should find exact Unicode matches through fallbacks
-            location = wiki_data.get_article_location("café")
+            location, article = wiki_data.get_article_location("café")
             assert location == "2025-06-01/FR/wiki_01"
+            assert article == "Café"
 
-            location = wiki_data.get_article_location("МОСКВА")
+            location, article = wiki_data.get_article_location("МОСКВА")
             assert location == "2025-06-01/RU/wiki_01"
+            assert article == "москва"

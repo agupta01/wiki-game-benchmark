@@ -1,5 +1,5 @@
 import json
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 import lmdb
 
@@ -24,14 +24,14 @@ class WikiData:
         self.path_transformer = path_transformer
         self.env = lmdb.open(db_path, readonly=True)
 
-    def get_article_location(self, article: str) -> str:
+    def get_article_location(self, article: str) -> Tuple[str, str]:
         """Get the location of an article in the dataset.
 
         Args:
             article: The name of the Wikipedia article to look up
 
         Returns:
-            The location path of the article (e.g., "2025-06-01/AA/wiki_01")
+            The location path of the article (e.g., "2025-06-01/AA/wiki_01") and the variation that worked
             or ArticleNotFound if the article is not found
         """
         try:
@@ -39,7 +39,7 @@ class WikiData:
                 # Try exact match first
                 location_bytes = txn.get(article.encode("utf-8"))
                 if location_bytes is not None:
-                    return location_bytes.decode("utf-8")
+                    return location_bytes.decode("utf-8"), article
 
                 # Try fallback variations if exact match fails
                 fallback_variations = self._get_case_fallbacks(article)
@@ -47,7 +47,7 @@ class WikiData:
                 for variation in fallback_variations:
                     location_bytes = txn.get(variation.encode("utf-8"))
                     if location_bytes is not None:
-                        return location_bytes.decode("utf-8")
+                        return location_bytes.decode("utf-8"), variation
 
                 # No match found in any variation
                 raise Exception
@@ -89,7 +89,7 @@ class WikiData:
 
     def get_page(self, article_title: str) -> Page:
         """Fetches a page object from LMDB. Throws an ArticleNotFoundError if the article isn't in DB."""
-        location = self.get_article_location(article_title)
+        location, article_title = self.get_article_location(article_title)
         # Transform path if needed
         if self.path_transformer:
             location = self.path_transformer(location)
