@@ -111,8 +111,8 @@ def process_queue_item():
         game.add_move(article=next_article.title, url=next_article.url)
         game_store[top_game_id] = game.model_dump_json()
 
-        # If not complete, push back to queue
-        if not game.is_complete and top_game_id:
+        # If not complete, and less than 100 moves complete, push back to queue
+        if not game.is_complete and top_game_id and len(game.moves) < 100:
             game_queue.put(top_game_id)
             # Restart manager if shut down
             if manage_queue.get_current_stats().backlog < 2 and get_scope() != "local":

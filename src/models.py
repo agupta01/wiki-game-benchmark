@@ -34,6 +34,7 @@ class CerebrasSupportedModel(SupportedModel):
 class GroqSupportedModel(SupportedModel):
     QWEN3_32B = "qwen/qwen3-32b"
     GPT_OSS_20B = "openai/gpt-oss-20b"
+    GPT_OSS_120B = "openai/gpt-oss-120b"
 
 
 class Page(BaseModel):
